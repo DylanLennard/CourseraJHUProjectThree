@@ -1,10 +1,8 @@
 #setwd('your path name here')
-getwd()
+library(dplyr)
 
 #Analysis done on mac OSX 10.10 using R version 3.2.2
 #Please adjust directories or directory notation to fit windows if necessary
-
-library(dplyr)
 
 #Create the project directory and download the zip file
 if (!dir.exists('project')){dir.create('project')}

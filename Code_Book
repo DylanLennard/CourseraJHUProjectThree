@@ -32,8 +32,7 @@ example: timeBodyAccMean_Y represents time based domain measurement of body acce
 
 Some variables also contained further abbreviations to represent measurement of the following fields:  
 
-
-
-
-
 The data for each variable are reported as normalized vectors, and thus the largest possible magnitude of force for any given field is 1 or -1 depending on orientation of direction. 
+
+Further in depth information on the original dataset can be found in the project folder by commenting the final line of run_analysis.R, or by visiting the original site at:  
+http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones

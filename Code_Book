@@ -1,0 +1,39 @@
+Code Book
+=============================================================================
+                            Datasets Reported
+=============================================================================
+The analysis returns two datasets, mergedDF and meanDF. The mergedDF is a dataset consisting of both training and testing datasets, appended on matching variables, with only the fields representing mean values and standard devations of values reported. The meanDF is a much smaller dataset consists of the mean values of each field in mergedDF aggregated by both subject and action. 
+
+==============================================================================
+                                Variables  
+==============================================================================
+All field in both of the final datasets end with Mean or StdDev to indicate which measurement of a given variable was analyzed. Many fields may also further end with _X, _Y, _Z to indicate the coordinate upon which the measurement is taken.  
+
+The fields included are the following:  
+
+subject: the given subject the row corresponds too  
+action: the given action performed in a given row 
+
+All other fields contains abbreviation for various components of what is measured.
+
+Domain
+time: time based domain
+freq: frequency based domain  
+
+Source of Signal
+Body: body acceleration signals
+Gravity: gravity acceleration signals 
+
+Device of Measurement Source
+Acc: accelerometer 
+Gyro: gyroscope  
+
+example: timeBodyAccMean_Y represents time based domain measurement of body acceleration signals from the accelerometer on the Y dimension.  
+
+Some variables also contained further abbreviations to represent measurement of the following fields:  
+
+
+
+
+
+The data for each variable are reported as normalized vectors, and thus the largest possible magnitude of force for any given field is 1 or -1 depending on orientation of direction. 

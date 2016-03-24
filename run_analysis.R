@@ -1,6 +1,5 @@
-#Set your working directory before you do anything else
 #setwd('your path name here')
-#getwd('')
+getwd()
 
 #Analysis done on mac OSX 10.10 using R version 3.2.2
 #Please adjust directories or directory notation to fit windows if necessary
@@ -9,6 +8,9 @@ library(dplyr)
 
 #Create the project directory and download the zip file
 if (!dir.exists('project')){dir.create('project')}
+
+#directory empty, download zip file and unzip it
+if (length(dir('./project')) == 0){
 projectURL <- paste0('https://d396qusza40orc.cloudfront.net/',
                      'getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip')
 download.file(projectURL, destfile= './project/project.zip', method='curl')
@@ -17,8 +19,11 @@ datedownloaded = date()
 #unzip the contents & download the dataset.
 unzip('./project/project.zip', list=FALSE, exdir = './project')
 
-#rename file and see what's in file
+#rename filesee what's in file
 file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
+}
+
+#See what's in file
 list.files('./project/UCI_HAR_Dataset')
 
 ###############Step 1: Merge datasets############################
@@ -53,7 +58,6 @@ rm(test_df, train_df, features)
 
 ##############################Step 2##########################################
 
-#revist before submitting and make sure this is what they meant. 
 df_names <- grep('*mean|*std', names(appendedDF), value=TRUE); df_names
 df_names <- append(df_names, c('subject', 'action'))
 
@@ -81,22 +85,17 @@ rm(activity, appendedDF)
 ############################Step 4############################################
 #I believe this step was already completed in step 1 with using the features
 #vector as the header for the inputed datasets. However, we could expand on
-#this and clean further if necessary. It's hard because there's the f vs. t
-#aspect, the actual phenomena measured, X vs. Y vs. Z, and of course mean 
-#vs. std dev. 
-
+#this.
 #Loop through and replace various components of the variable names rather than 
 #perform them manually. Got the idea from:  
 #http://stackoverflow.com/questions/9537797/r-grep-match-one-string-against-multiple-patterns
-# remove f and t and replace with time and frequency, remove ...X,Y, or Z and
+# remove f and t and replace with time and freq, remove ...X,Y, or Z and
 # replace with "_X,Y,Z", remove periods, upper case mean and upper case and
 # expand on standard deviation.  
-
-merged_names <- names(mergedDF); merged_names #already pretty solid
+merged_names <- names(mergedDF); merged_names
 
 keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
 strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')
-
 
 for (i in 1:length(keywords)){
     merged_names <- gsub(keywords[i], strings[i], merged_names)
@@ -124,8 +123,11 @@ dim(meanDF)#180
 write.csv(meanDF, "MeanData.csv")
 #this step may have been irrelevant, I'm not sure. If not needed, comment out
 
+##############################################################################
+#remove objects in memory
+rm(list = ls())
 
-########Uncomment the following line to delete everything from memory#########
-rm(list = ls()); unlink('./project', recursive = TRUE)
+#if you want to save the project folder, uncomment the following line:
+#unlink('./project', recursive = TRUE)
 
 ##############################################################################

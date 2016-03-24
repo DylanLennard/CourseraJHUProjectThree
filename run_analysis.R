@@ -25,7 +25,9 @@ list.files('./project/UCI_HAR_Dataset')
 #pull in the features.txt info for labels
 features <- read.table('./project/UCI_HAR_Dataset/features.txt')[,2]
 
-#construct each dataset by pulling in the X datasets with "features" as the column names, and then merge y and subject vectors named action and subject repsectively 
+#construct each dataset by pulling in the X datasets with "features" as the
+#column names, and then merge y and subject vectors named action and subject
+#respectively 
 construct_data<- function (string){
     df_file <- paste0('./project/UCI_HAR_Dataset/', string,
                       '/X_', string,'.txt')
@@ -60,7 +62,8 @@ appendedDF <- appendedDF %>% select_(.dots=df_names)
 
 rm(df_names)
 
-#notice that this also satisfies step 4 as we assigned good names to the variables, though perhaps we could modify the column names some more. 
+#notice that this also satisfies step 4 as we assigned good names to the
+#variables, though perhaps we could modify the column names some more. 
 
 
 #############################Step 3##########################################
@@ -76,7 +79,8 @@ mergedDF$activity_performed <- NULL
 rm(activity, appendedDF)
 
 ############################Step 4############################################
-#I believe this step was already completed in step 1 with using the features #vector as the header for the inputed datasets. However, we could expand on
+#I believe this step was already completed in step 1 with using the features
+#vector as the header for the inputed datasets. However, we could expand on
 #this and clean further if necessary. It's hard because there's the f vs. t
 #aspect, the actual phenomena measured, X vs. Y vs. Z, and of course mean 
 #vs. std dev. 

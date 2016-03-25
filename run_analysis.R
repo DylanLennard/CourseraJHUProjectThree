@@ -7,7 +7,7 @@ library(dplyr)
 #Create the project directory and download the zip file
 if (!dir.exists('project')){dir.create('project')}
 
-#directory empty, download zip file and unzip it
+#if directory empty, download zip file and unzip it
 if (length(dir('./project')) == 0){
 projectURL <- paste0('https://d396qusza40orc.cloudfront.net/',
                      'getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip')
@@ -121,11 +121,12 @@ dim(meanDF)#180
 write.csv(meanDF, "MeanData.csv")
 #this step may have been irrelevant, I'm not sure. If not needed, comment out
 
-##############################################################################
+######################Removing files and Objects###############################
 #remove objects in memory
 rm(list = ls())
 
-#if you want to save the project folder, uncomment the following line:
+#if you want to delete the project folder after running, 
+#uncomment the following line:
 #unlink('./project', recursive = TRUE)
 
 ##############################################################################

@@ -45,7 +45,9 @@ the following fields:
 Jerk: calculating the jerk
 Mag: magnitude of a given measurement
 
-The data for each variable are reported as normalized vectors, and thus the largest possible magnitude of force for any given field is 1 or -1 depending on orientation of direction. 
+The data for each variable are reported as normalized vectors, and thus the
+largest possible magnitude of force for any given field is 1 or -1 depending on
+orientation of direction. 
 
 The names of each variable were not changed beyond minor adjustments since the
 mean dataset itself measures the mean of mean values. 

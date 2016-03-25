@@ -117,9 +117,11 @@ head(tbl_df(meanDF))
 #Should have 81 fields and 180 rows (6 actions by 30 subjects). 
 dim(meanDF)#180
 
-#Finally, write this dataset out into a csv file. 
-write.csv(meanDF, "MeanData.csv")
-#this step may have been irrelevant, I'm not sure. If not needed, comment out
+#Finally, write this dataset out into a .txt file. 
+write.table(meanDF, "MeanData.txt", sep=' ', row.names = FALSE)
+#Can read in the file, if need be in the future, with the following command:
+#data <- read.table('MeanData.txt', sep='', header=TRUE)
+
 
 ######################Removing files and Objects###############################
 #remove objects in memory

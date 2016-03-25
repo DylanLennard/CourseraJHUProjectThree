@@ -7,7 +7,7 @@ dataset consisting of both training and testing datasets, appended on matching
 variables, with only the fields representing mean values and standard devations
 of values reported. The meanDF is a much smaller dataset consists of the mean
 values of each field in mergedDF aggregated by both subject and action. meanDF
-is returned as a CSV file after the code has been ran. 
+is returned as a txt file after the code has been ran. 
 
 ==============================================================================
                                 Variables  

@@ -19,7 +19,7 @@ run_analysis.R transforms the Samsung Galaxy S cell phone acceleromter data and 
 8) creates a new dataset consisting of each subject and activity combination and mean values for each variable in the mean dataframe  
 
 ### Running Script
-To run the dataset, simply make sure dplyr is installed on your machine, then run source('run_analysis.R') in R. The output will produce a csv file with the dataset which is a mean of all variables representing means and standard deviations.  
+To run the dataset, simply make sure dplyr is installed on your machine, then run source('run_analysis.R') in R. The output will produce a txt file with the dataset which is a mean of all variables representing means and standard deviations.  
 
 If you wish to delete the project folder downloaded from running the script, uncomment the unlink line at the end of the script. This will delete the entire project folder from your computer after the script runs.   
 

@@ -1,8 +1,10 @@
 #setwd('your path name here')
+#Install dplyr if not already installed on computer, then load it 
+if (!require("dplyr")) {
+    install.packages("dplyr")
+}
 library(dplyr)
 
-#Analysis done on mac OSX 10.10 using R version 3.2.2
-#Adjust directories or directory notation to fit windows if necessary
 
 #Create the project directory
 if (!dir.exists('project')){dir.create('project')}

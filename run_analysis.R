@@ -2,9 +2,9 @@
 library(dplyr)
 
 #Analysis done on mac OSX 10.10 using R version 3.2.2
-#Please adjust directories or directory notation to fit windows if necessary
+#Adjust directories or directory notation to fit windows if necessary
 
-#Create the project directory and download the zip file
+#Create the project directory
 if (!dir.exists('project')){dir.create('project')}
 
 #if directory empty, download zip file and unzip it
@@ -21,8 +21,8 @@ unzip('./project/project.zip', list=FALSE, exdir = './project')
 file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
 }
 
-#See what's in file
-list.files('./project/UCI_HAR_Dataset')
+#Uncomment to see what's in file
+#list.files('./project/UCI_HAR_Dataset')
 
 ###############Step 1: Merge datasets############################
 #pull in the features.txt info for labels
@@ -64,10 +64,6 @@ appendedDF <- appendedDF %>% select_(.dots=df_names)
 
 rm(df_names)
 
-#notice that this also satisfies step 4 as we assigned good names to the
-#variables, though perhaps we could modify the column names some more. 
-
-
 #############################Step 3##########################################
 #use activity_labels.txt to match numbers in dataset to the activities 
 activity <- read.table('./project/UCI_HAR_Dataset/activity_labels.txt'
@@ -76,14 +72,11 @@ activity <- read.table('./project/UCI_HAR_Dataset/activity_labels.txt'
 activity <- rename(activity, activity_performed = V2)
 
 mergedDF <- merge(appendedDF, activity, by.x='action', by.y='V1')
-#mergedDF$action <- NULL
+
 mergedDF$activity_performed <- NULL
 rm(activity, appendedDF)
 
 ############################Step 4############################################
-#I believe this step was already completed in step 1 with using the features
-#vector as the header for the inputed datasets. However, we could expand on
-#this.
 #Loop through and replace various components of the variable names rather than 
 #perform them manually. Got the idea from:  
 #http://stackoverflow.com/questions/9537797/r-grep-match-one-string-against-multiple-patterns
@@ -114,13 +107,9 @@ meanDF <- mergedDF %>%
 #check out the dataset 
 head(tbl_df(meanDF))
 
-#Should have 81 fields and 180 rows (6 actions by 30 subjects). 
-dim(meanDF)#180
 
 #Finally, write this dataset out into a .txt file. 
 write.table(meanDF, "MeanData.txt", sep=' ', row.names = FALSE)
-#Can read in the file, if need be in the future, with the following command:
-#data <- read.table('MeanData.txt', sep='', header=TRUE)
 
 
 ######################Removing files and Objects###############################

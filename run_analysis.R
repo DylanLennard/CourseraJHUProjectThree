@@ -10,6 +10,7 @@ library(dplyr)
 if (!dir.exists('project')){dir.create('project')}
 
 #if directory empty, download zip file and unzip it
+#fix this to look for the actual zip file
 if (length(dir('./project')) == 0){
 projectURL <- paste0('https://d396qusza40orc.cloudfront.net/',
                      'getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip')
@@ -19,7 +20,7 @@ datedownloaded = date()
 #unzip the contents & download the dataset.
 unzip('./project/project.zip', list=FALSE, exdir = './project')
 
-#rename filesee what's in file
+#rename file
 file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
 }
 
@@ -31,8 +32,7 @@ file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
 features <- read.table('./project/UCI_HAR_Dataset/features.txt')[,2]
 
 #construct each dataset by pulling in the X datasets with "features" as the
-#column names, and then merge y and subject vectors named action and subject
-#respectively 
+#column names, and then merge y and subject vectors
 construct_data<- function (string){
     df_file <- paste0('./project/UCI_HAR_Dataset/', string,
                       '/X_', string,'.txt')
@@ -41,9 +41,9 @@ construct_data<- function (string){
     subject_file <- paste0('./project/UCI_HAR_Dataset/', string, 
                            '/subject_', string, '.txt')
     
-    df <- read.table(df_file, sep = '', col.names = features)
-    df$subject <- read.table(subject_file, sep='',  col.names="subject")[,1]
-    df$action <- read.table(action_file, sep='', col.names='action')[,1]
+    df <- read.table(df_file, sep = '', names = features)
+    df$subject <- read.table(subject_file, sep='',  names="subject")[,1]
+    df$action <- read.table(action_file, sep='', names='action')[,1]
     
     return (df)
 }
@@ -82,9 +82,7 @@ rm(activity, appendedDF)
 #Loop through and replace various components of the variable names rather than 
 #perform them manually. Got the idea from:  
 #http://stackoverflow.com/questions/9537797/r-grep-match-one-string-against-multiple-patterns
-# remove f and t and replace with time and freq, remove ...X,Y, or Z and
-# replace with "_X,Y,Z", remove periods, upper case mean and upper case and
-# expand on standard deviation.  
+  
 merged_names <- names(mergedDF); merged_names
 
 keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
@@ -94,9 +92,6 @@ for (i in 1:length(keywords)){
     merged_names <- gsub(keywords[i], strings[i], merged_names)
 }
 
-#make sure changes implemented 
-merged_names  
-
 #change original names of dataframe  
 names(mergedDF) <- merged_names 
 
@@ -105,10 +100,6 @@ names(mergedDF) <- merged_names
 meanDF <- mergedDF %>%
         group_by(subject, action) %>%
         summarise_each(funs(mean))
-
-#check out the dataset 
-head(tbl_df(meanDF))
-
 
 #Finally, write this dataset out into a .txt file. 
 write.table(meanDF, "MeanData.txt", sep=' ', row.names = FALSE)

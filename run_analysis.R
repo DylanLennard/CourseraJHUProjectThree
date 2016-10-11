@@ -41,9 +41,9 @@ construct_data<- function (string){
     subject_file <- paste0('./project/UCI_HAR_Dataset/', string, 
                            '/subject_', string, '.txt')
     
-    df <- read.table(df_file, sep = '', names = features)
-    df$subject <- read.table(subject_file, sep='',  names="subject")[,1]
-    df$action <- read.table(action_file, sep='', names='action')[,1]
+    df <- read.table(df_file, sep = '', col.names = features)
+    df$subject <- read.table(subject_file, sep='', col.names="subject")[,1]
+    df$action <- read.table(action_file, sep='', col.names='action')[,1]
     
     return (df)
 }
@@ -58,7 +58,7 @@ rm(test_df, train_df, features)
 
 ##############################Step 2##########################################
 
-df_names <- grep('*mean|*std', names(appendedDF), value=TRUE); df_names
+df_names <- grep('*mean|*std', names(appendedDF), value=TRUE)
 df_names <- append(df_names, c('subject', 'action'))
 
 #use df_names to select those variables
@@ -83,7 +83,7 @@ rm(activity, appendedDF)
 #perform them manually. Got the idea from:  
 #http://stackoverflow.com/questions/9537797/r-grep-match-one-string-against-multiple-patterns
   
-merged_names <- names(mergedDF); merged_names
+merged_names <- names(mergedDF)
 
 keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
 strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')

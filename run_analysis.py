@@ -98,26 +98,51 @@ for item in features:
 
 
 ####################Step 3: assign labels and subjects to data##########
-# activity <- read.table('./project/UCI_HAR_Dataset/activity_labels.txt'
-#                       ,sep='')
 
 activity = pd.read_table('./project/UCI_HAR_Dataset/activity_labels.txt',
                 header = None, delim_whitespace=True,
                 usecols=[1], squeeze=True)
 
+#http://stackoverflow.com/questions/32335569/python-pandas-how-to-join-a-series-to-a-dataframe
 # activity <- rename(activity, activity_performed = V2)
+activity = activity.reset_index()
 
 # mergedDF <- merge(appendedDF, activity, by.x='action', by.y='V1')
+mergedDF = pd.merge(appendedDF, activity,  left_on='action', right_on='index')
 
-# mergedDF$activity_performed <- NULL
+
+del(activity, appendedDF)
 
 
 ################Step 4: Clean up names in data################
+# merged_names <- names(mergedDF); merged_names
+
+# keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
+# strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')
+
+# for (i in 1:length(keywords)){
+#     merged_names <- gsub(keywords[i], strings[i], merged_names)
+# }
+
+# names(mergedDF) <- merged_names 
+
 
 
 ##############Step 5: Get dataset of means of each var########
+#group by activity and subject, and report the mean for each variable. 
+meanDF = appendedDF.groupby(["subject", 'action']).mean()
 
+# #Finally, write this dataset out into a .txt file. 
+meanDF.to_csv(r'./project/MeanData.txt', header= meanDF.columns.values, \
+                index=None, sep=' ', mode='w')
 
-###########WRite out a text file of data from step 5##########
+###########Write out a text file of data from step 5##########
 
 #########Remove Objects from memory#######################
+del(dir())
+
+#if you want to delete the project folder after running, 
+#uncomment the following line:
+#unlink('./project', recursive = TRUE)
+
+##############################################################################

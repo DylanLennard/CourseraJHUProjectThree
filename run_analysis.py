@@ -95,7 +95,13 @@ feature_test = filter(lambda x: re.search(r'[mean]', x), features)
 feature_test = []
 for item in features:
     print re.search(r'[mean]', item)
-
+    
+    
+feature_test = []
+for item in features:
+    match = re.search(r"[M|m]ean|[S|s]td", item)
+    if match:
+        feature_test.append(item)
 
 ####################Step 3: assign labels and subjects to data##########
 
@@ -116,15 +122,22 @@ del(activity, appendedDF)
 
 ################Step 4: Clean up names in data################
 # merged_names <- names(mergedDF); merged_names
+merged_names = mergedDF.columns.values
 
 # keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
 # strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')
+
+keywords <- ['^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std']
+strings <- ['time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev']
 
 # for (i in 1:length(keywords)){
 #     merged_names <- gsub(keywords[i], strings[i], merged_names)
 # }
 
+# the above will be tricky to pull of cleanly in python  
+
 # names(mergedDF) <- merged_names 
+mergedDF.columns.values = merged_names
 
 
 

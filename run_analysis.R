@@ -5,6 +5,11 @@ if (!require("dplyr")) {
 }
 library(dplyr)
 
+if (!require("data.table")) {
+    install.packages("data.table")
+}
+library(data.table)
+
 
 #Create the project directory
 if (!dir.exists('project')){dir.create('project')}
@@ -29,7 +34,11 @@ file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
 
 ###############Step 1: Merge datasets############################
 #pull in the features.txt info for labels
-features <- read.table('./project/UCI_HAR_Dataset/features.txt')[,2]
+# features <- read_delim('./project/UCI_HAR_Dataset/features.txt',
+#                        delim = ' ', col_names = FALSE)[,2]
+
+features <- fread("./project/UCI_HAR_Dataset/features.txt", 
+                  sep = " ", select = 2)
 
 #construct each dataset by pulling in the X datasets with "features" as the
 #column names, and then merge y and subject vectors
@@ -41,9 +50,9 @@ construct_data<- function (string){
     subject_file <- paste0('./project/UCI_HAR_Dataset/', string, 
                            '/subject_', string, '.txt')
     
-    df <- read.table(df_file, sep = '', col.names = features)
-    df$subject <- read.table(subject_file, sep='', col.names="subject")[,1]
-    df$action <- read.table(action_file, sep='', col.names='action')[,1]
+    df <- fread(df_file, sep = ' ', col.names = features)
+    df$subject <- fread(subject_file, sep=' ', col.names="subject")[,1]
+    df$action <- fread(action_file, sep=' ', col.names='action')[,1]
     
     return (df)
 }
@@ -58,7 +67,8 @@ rm(test_df, train_df, features)
 
 ##############################Step 2##########################################
 
-df_names <- grep('*mean|*std', names(appendedDF), value=TRUE)
+df_names <- grep('mean|std', names(appendedDF), 
+                 value=TRUE, ignore.case = TRUE)
 df_names <- append(df_names, c('subject', 'action'))
 
 #use df_names to select those variables

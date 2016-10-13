@@ -1,15 +1,9 @@
 #setwd('your path name here')
 #Install dplyr if not already installed on computer, then load it 
-if (!require("dplyr")) {
-    install.packages("dplyr")
-}
-library(dplyr)
-
 if (!require("data.table")) {
     install.packages("data.table")
 }
 library(data.table)
-
 
 #Create the project directory
 if (!dir.exists('project')){dir.create('project')}

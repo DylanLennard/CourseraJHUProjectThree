@@ -26,10 +26,10 @@ if not os.path.exists('./project/UCI_HAR_Dataset'):
     response = requests.get(URL)
     with open('./project/project.zip','wb') as fout:
         fout.write(response.content)
-    del(response)
 
     #get the download date
     date = response.headers['Date']
+    del(response)
 
     #unzip
     zf = zipfile.ZipFile('./project/project.zip')
@@ -43,8 +43,7 @@ if not os.path.exists('./project/UCI_HAR_Dataset'):
 #see what's in the file
 #os.listdir('./project')
 
-############Step 1: Merge Datasets###########################
-
+####################Step 1: Combine Datasets########################################
 features = pd.read_table('./project/UCI_HAR_Dataset/features.txt',
                 header = None, delim_whitespace=True,
                 usecols=[1], squeeze=True)
@@ -73,15 +72,10 @@ train_df = construct_data('train')
 
 appendedDF = test_df.append(train_df)
 
-
 #remove unnecessary objects from memory
 del(test_df, train_df)
 
-
-#later on to get column names
-#list(df_name.columns.values)
-
-################Step 2: Grab only mean/std. dev data###########
+####################Step 2: Grab only mean/std. dev data############################
 
 # try to restructure using lambda function perhaps, or list comprehension 
 # feature_test = filter(lambda x:
@@ -91,7 +85,7 @@ del(test_df, train_df)
     
 feature_test = []
 for item in features:
-    match = re.search(r"[M|m]ean|[S|s]td|\bsubject\b|\baction\b", item)
+    match = re.search(r"[M|m]ean|[S|s]td", item)
     if match:
         feature_test.append(item)
         
@@ -100,7 +94,7 @@ features.append('action')
 features.append('subject')
 appendedDF = appendedDF[features]
 
-####################Step 3: assign labels and subjects to data##########
+####################Step 3: assign labels and subjects to data######################
 activity = pd.read_table('./project/UCI_HAR_Dataset/activity_labels.txt',
                 names = ["action","activity_performed"], header = None, 
                 delim_whitespace=True,squeeze=True)
@@ -109,8 +103,7 @@ mergedDF = pd.merge(appendedDF, activity,  on='action', how='inner')
 
 del(activity, appendedDF)
 
-################Step 4: Clean up names in data################
-# merged_names <- names(mergedDF); merged_names
+####################Step 4: Clean up names in data##################################
 merged_names = mergedDF.columns.values
 
 keywords = ['^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std', '-']
@@ -120,26 +113,24 @@ for i in xrange(len(merged_names)):
     for j in xrange(len(keywords)):
         merged_names[i] = re.sub(keywords[j], strings[j], merged_names[i])
 
-# names(mergedDF) <- merged_names 
 mergedDF.columns = merged_names
 
-
-##############Step 5: Get dataset of means of each var########
+####################Step 5: Get dataset of means of each var########################
 #group by activity and subject, and report the mean for each variable. 
 meanDF = mergedDF.groupby(["subject", 'action']).mean()
 
 
-###########Write out a text file of data from step 5##########
+###################Write out a text file of data####################################
 meanDF.to_csv(r'./project/MeanData.txt', header= meanDF.columns.values, \
                 index=None, sep=' ', mode='w')
 
-#########Remove Objects from memory#######################
+####################Remove Objects from memory######################################
 for name in dir():
     if not name.startswith('_'):
         del globals()[name]
 
 #if you want to delete the project folder after running, 
 #uncomment the following line:
-#unlink('./project', recursive = TRUE)
+#fill with command to delete contents and folder in python 
 
 ##############################################################################

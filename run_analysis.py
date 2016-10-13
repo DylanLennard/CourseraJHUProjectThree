@@ -46,10 +46,8 @@ if not os.path.exists('./project/UCI_HAR_Dataset'):
 ############Step 1: Merge Datasets###########################
 
 features = pd.read_table('./project/UCI_HAR_Dataset/features.txt',
-                header = True, delim_whitespace=True,
+                header = None, delim_whitespace=True,
                 usecols=[1], squeeze=True)
-
-
 
 def construct_data(string):
     df_file = './project/UCI_HAR_Dataset/'+ string+'/X_'+ \
@@ -124,26 +122,25 @@ del(activity, appendedDF)
 # merged_names <- names(mergedDF); merged_names
 merged_names = mergedDF.columns.values
 
-# keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
-# strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')
-
-keywords <- ['^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std']
-strings <- ['time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev']
+keywords = ['^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std']
+strings  = ['time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev']
 
 # for (i in 1:length(keywords)){
 #     merged_names <- gsub(keywords[i], strings[i], merged_names)
 # }
 
-# the above will be tricky to pull of cleanly in python  
+# the above will be tricky to pull of cleanly in python 
+for i in xrange(len(merged_names)):
+    for j in xrange(len(keywords)):
+        merged_names[i] = re.sub(keywords[j], strings[j], merged_names[i])
 
 # names(mergedDF) <- merged_names 
 mergedDF.columns.values = merged_names
 
 
-
 ##############Step 5: Get dataset of means of each var########
 #group by activity and subject, and report the mean for each variable. 
-meanDF = appendedDF.groupby(["subject", 'action']).mean()
+meanDF = mergedDF.groupby(["subject", 'action']).mean()
 
 # #Finally, write this dataset out into a .txt file. 
 meanDF.to_csv(r'./project/MeanData.txt', header= meanDF.columns.values, \
@@ -152,7 +149,9 @@ meanDF.to_csv(r'./project/MeanData.txt', header= meanDF.columns.values, \
 ###########Write out a text file of data from step 5##########
 
 #########Remove Objects from memory#######################
-del(dir())
+for name in dir():
+    if not name.startswith('_'):
+        del globals()[name]
 
 #if you want to delete the project folder after running, 
 #uncomment the following line:

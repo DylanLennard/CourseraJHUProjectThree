@@ -37,8 +37,8 @@ file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
 # features <- read_delim('./project/UCI_HAR_Dataset/features.txt',
 #                        delim = ' ', col_names = FALSE)[,2]
 
-features <- fread("./project/UCI_HAR_Dataset/features.txt", 
-                  sep = " ", select = 2)
+features <- read.table("./project/UCI_HAR_Dataset/features.txt", 
+                       sep = " ", colClasses = "character")[,2]
 
 #construct each dataset by pulling in the X datasets with "features" as the
 #column names, and then merge y and subject vectors
@@ -50,31 +50,33 @@ construct_data<- function (string){
     subject_file <- paste0('./project/UCI_HAR_Dataset/', string, 
                            '/subject_', string, '.txt')
     
-    df <- fread(df_file, sep = ' ', col.names = features)
-    df$subject <- fread(subject_file, sep=' ', col.names="subject")[,1]
-    df$action <- fread(action_file, sep=' ', col.names='action')[,1]
+    DT <- fread(df_file, sep = ' ')
+    DT$subject <- fread(subject_file, sep=' ')
+    DT$action <- fread(action_file, sep=' ')
+    setnames(DT, c(features, "subject", "action"))
     
-    return (df)
+    return (DT)
 }
 
-test_df <- construct_data('test')
-train_df <- construct_data('train')
+testDT <- construct_data('test')
+trainDT <- construct_data('train')
 
 #append the datasets on proper variables
-appendedDF <- rbind(test_df, train_df)
+appendedDT <- rbindlist(list(testDT, trainDT))
 
-rm(test_df, train_df, features)
+rm(testDT, trainDT, features)
 
 ##############################Step 2##########################################
 
-df_names <- grep('mean|std', names(appendedDF), 
+dt_names <- grep('mean|std', names(appendedDT), 
                  value=TRUE, ignore.case = TRUE)
-df_names <- append(df_names, c('subject', 'action'))
+dt_names <- append(dt_names, c('subject', 'action'))
 
-#use df_names to select those variables
-appendedDF <- appendedDF %>% select_(.dots=df_names)
+#use df_names to select those variables, switch to data.table notation 
+#appendedDT[ <- appendedDT %>% select_(.dots=dt_names)]]
+appendedDT <- appendedDT[, dt_names, with=FALSE]
 
-rm(df_names)
+rm(dt_names)
 
 #############################Step 3##########################################
 #use activity_labels.txt to match numbers in dataset to the activities 
@@ -83,17 +85,17 @@ activity <- read.table('./project/UCI_HAR_Dataset/activity_labels.txt'
 
 activity <- rename(activity, activity_performed = V2)
 
-mergedDF <- merge(appendedDF, activity, by.x='action', by.y='V1')
+mergedDT <- merge(appendedDT, activity, by.x='action', by.y='V1')
+mergedDT$activity_performed <- NULL
 
-mergedDF$activity_performed <- NULL
-rm(activity, appendedDF)
+rm(activity, appendedDT)
 
 ############################Step 4############################################
 #Loop through and replace various components of the variable names rather than 
 #perform them manually. Got the idea from:  
 #http://stackoverflow.com/questions/9537797/r-grep-match-one-string-against-multiple-patterns
   
-merged_names <- names(mergedDF)
+merged_names <- names(mergedDT)
 
 keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
 strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')
@@ -102,17 +104,15 @@ for (i in 1:length(keywords)){
     merged_names <- gsub(keywords[i], strings[i], merged_names)
 }
 
-#change original names of dataframe  
-names(mergedDF) <- merged_names 
+#change original names of DT (double check this)
+setnames(mergedDT, merged_names) 
 
 ############################Step 5############################################
 #group by activity and subject, and report the mean for each variable. 
-meanDF <- mergedDF %>%
-        group_by(subject, action) %>%
-        summarise_each(funs(mean))
+DT <- mergedDT[, lapply(.SD,mean), by=c('subject', 'action')]
 
 #Finally, write this dataset out into a .txt file. 
-write.table(meanDF, "MeanData.txt", sep=' ', row.names = FALSE)
+write.table(DT, "MeanData.txt", sep=' ', row.names = FALSE)
 
 
 ######################Removing files and Objects###############################

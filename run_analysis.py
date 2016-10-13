@@ -83,70 +83,55 @@ del(test_df, train_df)
 
 ################Step 2: Grab only mean/std. dev data###########
 
-##figure out why this isn't working, also figure out why GREP didn't catch
-##some of the variables that this one is catching.
-feature_test = filter(lambda x:
-                re.search(r'[*mean|*std|\bsubject\b|\baction\b]', x),
-                    features)
-feature_test = filter(lambda x: re.search(r'[mean]', x), features)
-
-feature_test = []
-for item in features:
-    print re.search(r'[mean]', item)
-    
+# try to restructure using lambda function perhaps, or list comprehension 
+# feature_test = filter(lambda x:
+#                 re.search(r'[*mean|*std|\bsubject\b|\baction\b]', x),
+#                     features)
+# feature_test = filter(lambda x: re.search(r'[mean]', x), features)
     
 feature_test = []
 for item in features:
-    match = re.search(r"[M|m]ean|[S|s]td", item)
+    match = re.search(r"[M|m]ean|[S|s]td|\bsubject\b|\baction\b", item)
     if match:
         feature_test.append(item)
+        
+features = feature_test
+features.append('action')
+features.append('subject')
+appendedDF = appendedDF[features]
 
 ####################Step 3: assign labels and subjects to data##########
-
 activity = pd.read_table('./project/UCI_HAR_Dataset/activity_labels.txt',
-                header = None, delim_whitespace=True,
-                usecols=[1], squeeze=True)
+                names = ["action","activity_performed"], header = None, 
+                delim_whitespace=True,squeeze=True)
 
-#http://stackoverflow.com/questions/32335569/python-pandas-how-to-join-a-series-to-a-dataframe
-# activity <- rename(activity, activity_performed = V2)
-activity = activity.reset_index()
-
-# mergedDF <- merge(appendedDF, activity, by.x='action', by.y='V1')
-mergedDF = pd.merge(appendedDF, activity,  left_on='action', right_on='index')
-
+mergedDF = pd.merge(appendedDF, activity,  on='action', how='inner')
 
 del(activity, appendedDF)
-
 
 ################Step 4: Clean up names in data################
 # merged_names <- names(mergedDF); merged_names
 merged_names = mergedDF.columns.values
 
-keywords = ['^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std']
-strings  = ['time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev']
+keywords = ['^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std', '-']
+strings  = ['time', 'freq', 'X', 'Y', 'Z', '', 'Mean', 'StdDev', '_']
 
-# for (i in 1:length(keywords)){
-#     merged_names <- gsub(keywords[i], strings[i], merged_names)
-# }
-
-# the above will be tricky to pull of cleanly in python 
 for i in xrange(len(merged_names)):
     for j in xrange(len(keywords)):
         merged_names[i] = re.sub(keywords[j], strings[j], merged_names[i])
 
 # names(mergedDF) <- merged_names 
-mergedDF.columns.values = merged_names
+mergedDF.columns = merged_names
 
 
 ##############Step 5: Get dataset of means of each var########
 #group by activity and subject, and report the mean for each variable. 
 meanDF = mergedDF.groupby(["subject", 'action']).mean()
 
-# #Finally, write this dataset out into a .txt file. 
-meanDF.to_csv(r'./project/MeanData.txt', header= meanDF.columns.values, \
-                index=None, sep=' ', mode='w')
 
 ###########Write out a text file of data from step 5##########
+meanDF.to_csv(r'./project/MeanData.txt', header= meanDF.columns.values, \
+                index=None, sep=' ', mode='w')
 
 #########Remove Objects from memory#######################
 for name in dir():

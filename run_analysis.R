@@ -17,16 +17,17 @@ if (!dir.exists('project')){dir.create('project')}
 #if directory empty, download zip file and unzip it
 #fix this to look for the actual zip file
 if (length(dir('./project')) == 0){
-projectURL <- paste0('https://d396qusza40orc.cloudfront.net/',
+    projectURL <- paste0('https://d396qusza40orc.cloudfront.net/',
                      'getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip')
-download.file(projectURL, destfile= './project/project.zip', method='curl')
-datedownloaded = date()
+    download.file(projectURL, destfile= './project/project.zip', 
+                  method='curl')
+    datedownloaded = date()
 
-#unzip the contents & download the dataset.
-unzip('./project/project.zip', list=FALSE, exdir = './project')
+    #unzip the contents & download the dataset.
+    unzip('./project/project.zip', list=FALSE, exdir = './project')
 
-#rename file
-file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
+    #rename file
+    file.rename('./project/UCI HAR Dataset', './project/UCI_HAR_Dataset')
 }
 
 #Uncomment to see what's in file
@@ -73,32 +74,28 @@ dt_names <- grep('mean|std', names(appendedDT),
 dt_names <- append(dt_names, c('subject', 'action'))
 
 #use df_names to select those variables, switch to data.table notation 
-#appendedDT[ <- appendedDT %>% select_(.dots=dt_names)]]
 appendedDT <- appendedDT[, dt_names, with=FALSE]
 
 rm(dt_names)
 
 #############################Step 3##########################################
 #use activity_labels.txt to match numbers in dataset to the activities 
-activity <- read.table('./project/UCI_HAR_Dataset/activity_labels.txt'
-                       ,sep='')
+activity <- read.table('./project/UCI_HAR_Dataset/activity_labels.txt',
+                      sep='', col.names = c("action", "activity_performed"))
 
-activity <- rename(activity, activity_performed = V2)
-
-mergedDT <- merge(appendedDT, activity, by.x='action', by.y='V1')
-mergedDT$activity_performed <- NULL
+mergedDT <- merge(appendedDT, activity, by='action')
 
 rm(activity, appendedDT)
 
 ############################Step 4############################################
-#Loop through and replace various components of the variable names rather than 
-#perform them manually. Got the idea from:  
-#http://stackoverflow.com/questions/9537797/r-grep-match-one-string-against-multiple-patterns
+#Loop through and replace various components of the variable names rather than
+#perform them manually. 
   
 merged_names <- names(mergedDT)
 
-keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean', 'std')
-strings <- c('time', 'freq', '_X', '_Y', '_Z', '', 'Mean', 'StdDev')
+# possibly also substitute hyphens with underscores, or nothing 
+keywords <- c('^t', '^f', '\\.*X', '\\.*Y', '\\.*Z', '\\.', 'mean','std','-')
+strings <- c('time', 'freq', 'X', 'Y', 'Z', '', 'Mean', 'StdDev', '_')
 
 for (i in 1:length(keywords)){
     merged_names <- gsub(keywords[i], strings[i], merged_names)
@@ -109,7 +106,7 @@ setnames(mergedDT, merged_names)
 
 ############################Step 5############################################
 #group by activity and subject, and report the mean for each variable. 
-DT <- mergedDT[, lapply(.SD,mean), by=c('subject', 'action')]
+DT <- mergedDT[, lapply(.SD, mean), by=c('subject', 'action')]
 
 #Finally, write this dataset out into a .txt file. 
 write.table(DT, "MeanData.txt", sep=' ', row.names = FALSE)
